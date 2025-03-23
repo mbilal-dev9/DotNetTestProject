@@ -13,7 +13,7 @@ builder.Services.AddControllers();
 var app = builder.Build();
 
 app.MapUserEndPoints();
-
+app.MapPostEndPoints();
 // app.UseAuthorization();
 // app.MapControllers();
 

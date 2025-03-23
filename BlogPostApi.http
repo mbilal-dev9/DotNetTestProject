@@ -10,3 +10,24 @@ Content-Type: application/json
     "password": "pawa@12345",
     "ByPassUserName": false
 }
+
+###
+POST http://localhost:5037/posts
+Content-Type: application/json
+{
+  "title": "My First Blog Post With user $",
+  "content": "This is the content of my first blog post.",
+  "userId": 4
+}
+
+###
+GET http://localhost:5037/posts
+
+###
+PATCH http://localhost:5037/posts/1
+Content-Type: application/json
+
+{
+  "title": " updated post title ",
+  "content": "  new content here  "
+}

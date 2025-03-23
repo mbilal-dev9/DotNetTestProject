@@ -35,5 +35,7 @@ namespace BlogPostAPI.Models
     [NotMapped]
     public bool ByPassUserName { get; set; } = false;
 
+    // One-to-Many Relationship (One User → Many Posts)
+    public virtual List<Post> Posts { get; set; } = new List<Post>();
   }
 }
