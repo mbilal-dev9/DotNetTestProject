@@ -3,13 +3,23 @@ GET http://localhost:5037/users
 ###
 POST http://localhost:5037/users
 Content-Type: application/json
-
 {
     "name": "Without By Pass Value",
     "email": "withoutpypass@example.com",
     "password": "pawa@12345",
     "ByPassUserName": false
 }
+
+###
+PATCH http://localhost:5037/users/5
+Content-Type: application/json
+
+{
+    "name": "new Faisal 969"
+}
+
+###
+PATCH http://localhost:5037/users/5/revert
 
 ###
 POST http://localhost:5037/posts

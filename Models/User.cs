@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace BlogPostAPI.Models
 {
@@ -37,5 +38,18 @@ namespace BlogPostAPI.Models
 
     // One-to-Many Relationship (One User → Many Posts)
     public virtual List<Post> Posts { get; set; } = new List<Post>();
+
+    [Column(TypeName = "nvarchar(max)")]
+    public string NameHistory { get; set; } = "[]";
+
+    [NotMapped]
+    public List<Dictionary<string, string>> NameHistoryList
+    {
+      get => string.IsNullOrWhiteSpace(NameHistory)
+          ? new List<Dictionary<string, string>>()
+          : JsonSerializer.Deserialize<List<Dictionary<string, string>>>(NameHistory, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new List<Dictionary<string, string>>();
+
+      set => NameHistory = JsonSerializer.Serialize(value ?? new List<Dictionary<string, string>>());
+    }
   }
 }

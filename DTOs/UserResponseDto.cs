@@ -7,5 +7,7 @@ public record class UserResponseDto(
   string Name,
   string UserName,
   string Email,
-  DateTime CreatedAt
+  DateTime CreatedAt,
+  DateTime UpdatedAt,
+  List<Dictionary<string, string>> NameHistory // Change from string to List<Dictionary<string, string>>
 );
