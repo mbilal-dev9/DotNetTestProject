@@ -1,3 +1,4 @@
+using System.Text.Json;
 using BlogPostApi.DTOs;
 using BlogPostAPI.Models;
 
@@ -25,7 +26,9 @@ public static class UserMapping
       user.Name,
       user.UserName,
       user.Email,
-      user.CreatedAt
+      user.CreatedAt,
+      user.UpdatedAt,
+       user.NameHistoryList
     );
   }
 

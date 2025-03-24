@@ -50,6 +50,29 @@ public class BlogDbContext(DbContextOptions<BlogDbContext> options) : DbContext(
           user.UserName = user.ByPassUserName ? "" : GenerateUniqueUserName(user.Email);
         }
 
+       if (entry.State == EntityState.Modified)
+{
+    var oldName = entry.OriginalValues["Name"]?.ToString();
+    var newName = entry.CurrentValues["Name"]?.ToString();
+
+    if (!string.IsNullOrWhiteSpace(oldName) && oldName != newName)
+    {
+        var history = user.NameHistoryList;
+
+        // Add only if the name is not already present in history
+        if (!history.Any(h => h["name"] == oldName))
+        {
+            history.Add(new Dictionary<string, string>
+            {
+                { "name", oldName },
+                { "createdAt", DateTime.UtcNow.ToString("o") } // ISO 8601 format
+            });
+        }
+
+        user.NameHistoryList = history;  // Update the NameHistory JSON field
+    }
+}
+
       }
     }
     foreach (var entry in ChangeTracker.Entries<Post>())
