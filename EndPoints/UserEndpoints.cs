@@ -1,4 +1,5 @@
 using System;
+using System.Text.Json;
 using BlogPostApi.Data;
 using BlogPostApi.DTOs;
 using BlogPostApi.Mapping;
@@ -72,6 +73,34 @@ public static class UserEndpoints
        user.UserName = updateUser.UserName;
      }
 
+     var oldName = user.Name; // Store the original name before updating
+     var newName = updateUser.Name; // Get new name from request DTO
+
+     // Check if the name is changing
+     if (!string.IsNullOrWhiteSpace(oldName) && oldName != newName)
+     {
+       // Deserialize NameHistory from JSON string
+       var history = string.IsNullOrWhiteSpace(user.NameHistory)
+           ? new List<Dictionary<string, string>>() // Initialize empty list if history is empty
+           : JsonSerializer.Deserialize<List<Dictionary<string, string>>>(user.NameHistory) ?? new List<Dictionary<string, string>>();
+
+       // Add only if the name is not already present in history
+       if (!history.Any(h => h["name"] == oldName))
+       {
+         history.Add(new Dictionary<string, string>
+            {
+                { "name", oldName },
+                { "createdAt", DateTime.UtcNow.ToString("o") } // ISO 8601 format
+            });
+       }
+
+       // Serialize back to JSON and update NameHistory field
+       user.NameHistory = JsonSerializer.Serialize(history);
+     }
+
+     // Update user properties
+     user.Name = newName; // Set new name
+
      dbContext.Users.Update(user);
      try
      {
@@ -81,43 +110,47 @@ public static class UserEndpoints
      {
        return Results.Problem($"An error occurred while saving the user: {ex.InnerException?.Message ?? ex.Message}");
      }
-      return Results.Ok(user.ToUserSummaryDto());
+     return Results.Ok(user.ToUserSummaryDto());
    }
    );
 
     group.MapPatch("/{id}/revert", (int id, BlogDbContext dbContext) =>
 {
-    var user = dbContext.Users.Find(id);
-    if (user == null)
-    {
-        return Results.NotFound("User not found.");
-    }
+  var user = dbContext.Users.Find(id);
+  if (user == null)
+  {
+    return Results.NotFound("User not found.");
+  }
 
-    var history = user.NameHistoryList;
-    if (history.Count == 0)
-    {
-        return Results.BadRequest("No previous name to revert.");
-    }
+  var history = user.NameHistoryList;
+  if (history == null || history.Count == 0)
+  {
+    return Results.BadRequest("No previous name to revert.");
+  }
 
-    // Get last name object and extract the name
-    var lastNameEntry = history[^1];
-    var lastName = lastNameEntry["name"];
+  // Get the last name from history
+  var lastEntry = history.Last();
+  user.Name = lastEntry["name"];
 
-    history.RemoveAt(history.Count - 1); // Remove last entry
+  // Remove the last entry
+  history.RemoveAt(history.Count - 1);
 
-    user.Name = lastName;
-    user.NameHistoryList = history; // Save the updated history
+  user.NameHistory = JsonSerializer.Serialize(history);
 
-    try
-    {
-        dbContext.SaveChanges();
-        return Results.Ok(user.ToUserSummaryDto());
-    }
-    catch (DbUpdateException ex)
-    {
-        return Results.Problem($"Error reverting username: {ex.InnerException?.Message ?? ex.Message}");
-    }
+  Console.WriteLine("i am in here {}");
+
+  try
+  {
+    dbContext.SaveChanges();
+    return Results.Ok(user.ToUserSummaryDto());
+  }
+  catch (DbUpdateException ex)
+  {
+    return Results.Problem($"Error reverting username: {ex.InnerException?.Message ?? ex.Message}");
+  }
 });
+
+
     return group;
   }
 

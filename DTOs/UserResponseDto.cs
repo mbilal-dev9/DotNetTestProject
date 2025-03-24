@@ -10,5 +10,4 @@ public record class UserResponseDto(
   DateTime CreatedAt,
   DateTime UpdatedAt,
   List<Dictionary<string, string>> NameHistory // Change from string to List<Dictionary<string, string>>
-
 );

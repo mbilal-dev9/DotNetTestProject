@@ -14,14 +14,13 @@ Content-Type: application/json
 ###
 PATCH http://localhost:5037/users/5
 Content-Type: application/json
-
 {
     "name": "new Faisal 12"
 }
 
 
 ###
-PATCH http://localhost:5037/users/1/revert
+PATCH http://localhost:5037/users/5/revert
 
 ###
 POST http://localhost:5037/posts

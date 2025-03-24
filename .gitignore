@@ -1,0 +1,13 @@
+# Ignore build outputs
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
+*.cache
+*.sourcelink.json
+
+# Ignore user-specific files
+.vscode/
+.idea/
+*.user
