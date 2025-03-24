@@ -56,63 +56,60 @@ public static class UserEndpoints
     );
 
     group.MapPatch("/{id}", (int id, UpdateUserDto updateUser, BlogDbContext dbContext) =>
-   {
-     User? user = dbContext.Users.Find(id);
+  {
+    User? user = dbContext.Users.Find(id);
 
-     if (user == null)
-     {
-       return Results.NotFound($"User with ID {id} not found.");
-     }
-     if (!string.IsNullOrWhiteSpace(updateUser.Name))
-     {
-       user.Name = updateUser.Name;
-     }
+    if (user == null)
+    {
+      return Results.NotFound($"User with ID {id} not found.");
+    }
 
-     if (!string.IsNullOrWhiteSpace(updateUser.UserName))
-     {
-       user.UserName = updateUser.UserName;
-     }
+    if (!string.IsNullOrWhiteSpace(updateUser.UserName))
+    {
+      user.UserName = updateUser.UserName;
+    }
 
-     var oldName = user.Name; // Store the original name before updating
-     var newName = updateUser.Name; // Get new name from request DTO
+   // Store the original name before updating
+    if (!string.IsNullOrWhiteSpace(updateUser.Name))
+    {
+      var oldName = user.Name;
 
-     // Check if the name is changing
-     if (!string.IsNullOrWhiteSpace(oldName) && oldName != newName)
-     {
-       // Deserialize NameHistory from JSON string
-       var history = string.IsNullOrWhiteSpace(user.NameHistory)
-           ? new List<Dictionary<string, string>>() // Initialize empty list if history is empty
-           : JsonSerializer.Deserialize<List<Dictionary<string, string>>>(user.NameHistory) ?? new List<Dictionary<string, string>>();
+      var history = string.IsNullOrWhiteSpace(user.NameHistory)
+      ? new List<Dictionary<string, string>>() // Initialize empty list if history is empty
+      : JsonSerializer.Deserialize<List<Dictionary<string, string>>>(user.NameHistory) ?? new List<Dictionary<string, string>>();
 
-       // Add only if the name is not already present in history
-       if (!history.Any(h => h["name"] == oldName))
-       {
-         history.Add(new Dictionary<string, string>
-            {
+      if (!string.IsNullOrWhiteSpace(oldName) && oldName != updateUser.Name)
+    {
+
+      if (!history.Any(h => h["name"] == oldName))
+      {
+        history.Add(new Dictionary<string, string>
+              {
                 { "name", oldName },
                 { "createdAt", DateTime.UtcNow.ToString("o") } // ISO 8601 format
-            });
-       }
+              });
+      }
 
-       // Serialize back to JSON and update NameHistory field
-       user.NameHistory = JsonSerializer.Serialize(history);
-     }
+      user.Name = updateUser.Name;
 
-     // Update user properties
-     user.Name = newName; // Set new name
+      // Serialize back to JSON and update NameHistory field
+      user.NameHistory = JsonSerializer.Serialize(history);
+    }
+    }
+       // Save changes to the database
+    dbContext.Users.Update(user);
+    try
+    {
+      dbContext.SaveChanges();
+    }
+    catch (DbUpdateException ex)
+    {
+      return Results.Problem($"An error occurred while saving the user: {ex.InnerException?.Message ?? ex.Message}");
+    }
 
-     dbContext.Users.Update(user);
-     try
-     {
-       dbContext.SaveChanges();
-     }
-     catch (DbUpdateException ex)
-     {
-       return Results.Problem($"An error occurred while saving the user: {ex.InnerException?.Message ?? ex.Message}");
-     }
-     return Results.Ok(user.ToUserSummaryDto());
-   }
-   );
+    return Results.Ok(user.ToUserSummaryDto());
+  });
+
 
     group.MapPatch("/{id}/revert", (int id, BlogDbContext dbContext) =>
 {
