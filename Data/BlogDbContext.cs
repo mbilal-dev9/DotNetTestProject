@@ -45,14 +45,17 @@ public class BlogDbContext(DbContextOptions<BlogDbContext> options) : DbContext(
 
   private void ApplyInterceptors(ChangeTracker changeTracker, bool hardDelete = false)
   {
-    foreach (var entry in changeTracker.Entries<User>())
+    foreach (var entry in changeTracker.Entries())
     {
-      _userInterceptor.Apply(entry, hardDelete);
-    }
-
-    foreach (var entry in changeTracker.Entries<Post>())
-    {
-      _postInterceptor.Apply(entry, hardDelete);
+      switch (entry.Entity)
+      {
+        case User user:
+          _userInterceptor.Apply((EntityEntry<User>)entry, hardDelete);
+          break;
+        case Post post:
+          _postInterceptor.Apply((EntityEntry<Post>)entry, hardDelete);
+          break;
+      }
     }
   }
 
