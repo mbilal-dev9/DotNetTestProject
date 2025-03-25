@@ -28,7 +28,8 @@ public static class UserMapping
       user.Email,
       user.CreatedAt,
       user.UpdatedAt,
-       user.NameHistoryList
+      user.NameHistoryList,
+      user.IsDeleted
     );
   }
 

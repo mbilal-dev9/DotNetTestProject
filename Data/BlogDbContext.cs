@@ -27,6 +27,10 @@ public class BlogDbContext(DbContextOptions<BlogDbContext> options) : DbContext(
         .HasForeignKey(p => p.UserId)
         .OnDelete(DeleteBehavior.Cascade); // If a user is deleted, their posts will also be deleted
 
+     modelBuilder.Entity<User>().HasQueryFilter(u => !u.IsDeleted);
+
+     modelBuilder.Entity<Post>().HasQueryFilter(p => !p.IsDeleted);
+
     base.OnModelCreating(modelBuilder);
   }
 

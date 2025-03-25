@@ -51,5 +51,10 @@ namespace BlogPostAPI.Models
 
       set => NameHistory = JsonSerializer.Serialize(value ?? new List<Dictionary<string, string>>());
     }
+
+     public bool IsDeleted { get; set; } = false; // Default: Not deleted
+
+     
+
   }
 }

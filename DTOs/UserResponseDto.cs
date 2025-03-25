@@ -9,5 +9,6 @@ public record class UserResponseDto(
   string Email,
   DateTime CreatedAt,
   DateTime UpdatedAt,
-  List<Dictionary<string, string>> NameHistory // Change from string to List<Dictionary<string, string>>
+  List<Dictionary<string, string>> NameHistory, // Change from string to List<Dictionary<string, string>>
+  bool IsDeleted
 );

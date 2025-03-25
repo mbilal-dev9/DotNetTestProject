@@ -69,7 +69,7 @@ public static class UserEndpoints
       user.UserName = updateUser.UserName;
     }
 
-   // Store the original name before updating
+    // Store the original name before updating
     if (!string.IsNullOrWhiteSpace(updateUser.Name))
     {
       var oldName = user.Name;
@@ -79,24 +79,24 @@ public static class UserEndpoints
       : JsonSerializer.Deserialize<List<Dictionary<string, string>>>(user.NameHistory) ?? new List<Dictionary<string, string>>();
 
       if (!string.IsNullOrWhiteSpace(oldName) && oldName != updateUser.Name)
-    {
-
-      if (!history.Any(h => h["name"] == oldName))
       {
-        history.Add(new Dictionary<string, string>
+
+        if (!history.Any(h => h["name"] == oldName))
+        {
+          history.Add(new Dictionary<string, string>
               {
                 { "name", oldName },
                 { "createdAt", DateTime.UtcNow.ToString("o") } // ISO 8601 format
               });
+        }
+
+        user.Name = updateUser.Name;
+
+        // Serialize back to JSON and update NameHistory field
+        user.NameHistory = JsonSerializer.Serialize(history);
       }
-
-      user.Name = updateUser.Name;
-
-      // Serialize back to JSON and update NameHistory field
-      user.NameHistory = JsonSerializer.Serialize(history);
     }
-    }
-       // Save changes to the database
+    // Save changes to the database
     dbContext.Users.Update(user);
     try
     {
@@ -147,6 +147,36 @@ public static class UserEndpoints
   }
 });
 
+
+    group.MapDelete("/{id}", (int id, BlogDbContext dbContext) =>
+{
+  var user = dbContext.Users
+      .Include(u => u.Posts)
+      .FirstOrDefault(u => u.Id == id);
+
+  if (user == null)
+  {
+    return Results.NotFound("User not found.");
+  }
+
+  // Mark user and related posts as deleted
+  user.IsDeleted = true;
+
+  foreach (var post in user.Posts)
+  {
+    post.IsDeleted = true;
+  }
+
+  try
+  {
+    dbContext.SaveChanges();
+    return Results.Ok($"User {id} and their posts have been soft deleted.");
+  }
+  catch (DbUpdateException ex)
+  {
+    return Results.Problem($"Error deleting user: {ex.InnerException?.Message ?? ex.Message}");
+  }
+});
 
     return group;
   }
