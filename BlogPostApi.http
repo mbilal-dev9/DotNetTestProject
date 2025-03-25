@@ -5,10 +5,12 @@ POST http://localhost:5037/users
 Content-Type: application/json
 
 {
-    "name": "Pass Value",
-    "email": "withoutpypass123@example.com",
-    "password": "pawa@12345",
-    "ByPassUserName": false
+  "name": "Jane Doe",
+  "userName": "janedoe",
+  "email": "jane@example.com",
+  "password": "securePassword",
+  "byPassUserName": false,
+  "role": 1
 }
 
 ###
