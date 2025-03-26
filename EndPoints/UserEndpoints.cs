@@ -149,37 +149,17 @@ public static class UserEndpoints
 
 
     group.MapDelete("/{id}", (int id, BlogDbContext dbContext) =>
-{
-  var user = dbContext.Users
-      .Include(u => u.Posts)
-      .FirstOrDefault(u => u.Id == id);
-
-  if (user == null)
   {
-    return Results.NotFound("User not found.");
+    try
+    {
+      dbContext.SaveChanges();
+      return Results.Ok($"User {id} and their posts have been soft deleted.");
+    }
+    catch (DbUpdateException ex)
+    {
+      return Results.Problem($"Error deleting user: {ex.InnerException?.Message ?? ex.Message}");
+    }
+  });
+      return group;
+    }
   }
-
-  // Mark user and related posts as deleted
-  user.IsDeleted = true;
-
-  foreach (var post in user.Posts)
-  {
-    post.IsDeleted = true;
-  }
-
-  try
-  {
-    dbContext.SaveChanges();
-    return Results.Ok($"User {id} and their posts have been soft deleted.");
-  }
-  catch (DbUpdateException ex)
-  {
-    return Results.Problem($"Error deleting user: {ex.InnerException?.Message ?? ex.Message}");
-  }
-});
-
-    return group;
-  }
-
-
-}
