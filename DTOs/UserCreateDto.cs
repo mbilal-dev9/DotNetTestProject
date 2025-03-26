@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using BlogPostAPI.Models;
 
 namespace BlogPostApi.DTOs;
 
@@ -20,6 +19,8 @@ public record class UserCreateDto(
     [Required]
    string Password,
 
-   bool ByPassUserName
+   bool ByPassUserName,
+
+   int? Role
 
 );

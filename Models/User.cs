@@ -3,6 +3,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 
+public enum UserType
+{
+    User = 0,
+    Author = 1,
+    Admin = 2
+}
+
 namespace BlogPostAPI.Models
 {
   [Index(nameof(Email), IsUnique = true)] // Ensure Email is unique
@@ -51,5 +58,10 @@ namespace BlogPostAPI.Models
 
       set => NameHistory = JsonSerializer.Serialize(value ?? new List<Dictionary<string, string>>());
     }
+
+     public bool IsDeleted { get; set; } = false; // Default: Not deleted
+
+    public UserType Role { get; set; } = UserType.User;
+
   }
 }

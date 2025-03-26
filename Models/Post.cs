@@ -22,5 +22,8 @@ namespace BlogPostAPI.Models
 
     // Navigation Property (Many-to-One)
     public virtual User? User { get; set; }
+
+    public bool IsDeleted { get; set; } = false;
+
   }
 }

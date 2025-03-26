@@ -1,4 +1,3 @@
-using System.Text.Json;
 using BlogPostApi.DTOs;
 using BlogPostAPI.Models;
 
@@ -15,7 +14,8 @@ public static class UserMapping
         Password = BCrypt.Net.BCrypt.HashPassword(user.Password), // Hash password
         CreatedAt = DateTime.UtcNow,
         UpdatedAt = DateTime.UtcNow,
-        ByPassUserName = user.ByPassUserName
+        ByPassUserName = user.ByPassUserName,
+        Role = (UserType)(user.Role ?? (int)UserType.User)
       };
     } 
 
@@ -28,7 +28,9 @@ public static class UserMapping
       user.Email,
       user.CreatedAt,
       user.UpdatedAt,
-       user.NameHistoryList
+      user.NameHistoryList,
+      user.IsDeleted,
+      ((UserType)user.Role).ToString() 
     );
   }
 

@@ -3,11 +3,13 @@ GET http://localhost:5037/users
 ###
 POST http://localhost:5037/users
 Content-Type: application/json
+
 {
-    "name": "Without By Pass Value",
-    "email": "withoutpypass@example.com",
-    "password": "pawa@12345",
-    "ByPassUserName": false
+  "name": "Jane Doe 123",
+  "email": "janeDoe@example.com",
+  "password": "securePassword",
+  "byPassUserName": false,
+  "role": 2
 }
 
 ###
@@ -22,19 +24,23 @@ Content-Type: application/json
 PATCH http://localhost:5037/users/5/revert
 
 ###
+DELETE http://localhost:5037/users/13
+
+###
 POST http://localhost:5037/posts
 Content-Type: application/json
+
 {
-  "title": "My First Blog Post With user $",
-  "content": "This is the content of my first blog post.",
-  "userId": 4
+  "title": "My First Blog Post  user 12345",
+  "content": "This is the new of my first blog post.",
+  "userId": 6
 }
 
 ###
 GET http://localhost:5037/posts
 
 ###
-PATCH http://localhost:5037/posts/1
+PATCH http://localhost:5037/posts/7
 Content-Type: application/json
 
 {
